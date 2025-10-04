@@ -1,0 +1,85 @@
+// 白系統の共通スタイル
+$white-background: #ffffff;
+$white-soft: #fafafa;
+$white-mute: #f5f5f5;
+$border-light: rgba(224, 224, 224, 0.8);
+$shadow-light: rgba(0, 0, 0, 0.05);
+$text-primary: #212121;
+$text-secondary: rgba(33, 33, 33, 0.6);
+
+// 共通の main-content スタイル
+@mixin main-content-light {
+  background: $white-background;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(33, 150, 243, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(158, 158, 158, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// 共通の app-bar スタイル
+@mixin app-bar-light {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid $border-light;
+  box-shadow: 0 2px 10px $shadow-light;
+}
+
+// 共通の card スタイル
+@mixin card-light {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid $border-light;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px $shadow-light;
+}
+
+// 共通のロゴスタイル
+@mixin logo-text-supicha {
+  font-weight: 900;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.5px;
+}
+
+@mixin logo-text-log {
+  font-weight: 900;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.5px;
+  margin-left: 2px;
+}
+
+@mixin logo-container {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(33, 150, 243, 0.3);
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.1);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.9);
+}
