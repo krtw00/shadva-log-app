@@ -1,6 +1,44 @@
+# Dependencies
 node_modules
+
+# Build outputs
 dist
 out
+build
+
+# OS files
 .DS_Store
-.eslintcache
+Thumbs.db
+
+# IDE files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+
+# Logs
 *.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Cache
+.eslintcache
+.npmrc
+
+# Database files (ユーザーデータなので除外)
+*.sqlite
+*.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Package manager locks (npm使用の場合はpackage-lock.jsonは含める)
+# yarn.lock
+# pnpm-lock.yaml

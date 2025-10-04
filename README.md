@@ -1,34 +1,65 @@
-# supicha-log-app
+# SHADVALOG
 
-An Electron application with Vue and TypeScript
+Shadowverse対戦記録管理アプリケーション
 
-## Recommended IDE Setup
+## 概要
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+SHADVALOGは、Shadowverseの対戦履歴を記録・管理するためのElectronアプリケーションです。
 
-## Project Setup
+## 主な機能
 
-### Install
+- 📊 対戦記録の登録・編集・削除
+- 📈 詳細な統計情報の表示
+- 🎴 デッキアーキタイプの管理
+- 💾 CSVインポート/エクスポート
+- 🔍 ランク別フィルタリング（Beginner-AA / Master / Grand Master）
+
+## 技術スタック
+
+- **Electron** - デスクトップアプリケーションフレームワーク
+- **Vue 3** - UIフレームワーク
+- **TypeScript** - 型安全な開発
+- **Vuetify** - マテリアルデザインコンポーネント
+- **Better-SQLite3** - ローカルデータベース
+- **Vite** - 高速ビルドツール
+
+## 開発環境のセットアップ
+
+### 必要要件
+
+- Node.js 16以上
+- npm または yarn
+
+### インストール
 
 ```bash
-$ npm install
+# 依存関係のインストール
+npm install
+
+# 開発モードで起動
+npm run dev
+
+# 本番ビルド
+npm run build:win  # Windows
+npm run build:mac  # macOS
+npm run build:linux  # Linux
 ```
 
-### Development
+## ビルド
 
 ```bash
-$ npm run dev
+# Windowsインストーラーのビルド
+npm run build:win
+
+# ポータブル版も同時に生成されます
 ```
 
-### Build
+ビルドされたファイルは `dist` ディレクトリに出力されます。
 
-```bash
-# For windows
-$ npm run build:win
+## ライセンス
 
-# For macOS
-$ npm run build:mac
+このプロジェクトは個人使用を目的としています。
 
-# For Linux
-$ npm run build:linux
-```
+## 開発者
+
+開発に関する質問や提案は、Issuesセクションにお願いします。
