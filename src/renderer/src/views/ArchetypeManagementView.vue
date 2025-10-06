@@ -116,6 +116,14 @@
               label="クラス"
               :rules="[rules.required]"
               variant="outlined"
+              class="mb-4"
+            />
+            <v-text-field
+              v-model.number="archetypeForm.default_cr"
+              label="デフォルトCR"
+              type="number"
+              :rules="[rules.numeric, rules.minZero]"
+              variant="outlined"
             />
           </v-form>
         </v-card-text>
@@ -157,7 +165,8 @@ const selectedArchetype = ref<Archetype | null>(null)
 
 const defaultArchetypeForm = (): Archetype => ({
   name: '',
-  class_name: ''
+  class_name: '',
+  default_cr: 0
 })
 
 const archetypeForm = ref<Archetype>(defaultArchetypeForm())
@@ -170,11 +179,14 @@ const headers = [
   { title: 'ID', key: 'id', sortable: true, width: 80 },
   { title: 'アーキタイプ名', key: 'name', sortable: true },
   { title: 'クラス', key: 'class_name', sortable: true },
+  { title: 'デフォルトCR', key: 'default_cr', sortable: true },
   { title: 'アクション', key: 'actions', sortable: false, width: 150, align: 'center' }
 ] as const
 
 const rules = {
   required: (v: any) => (v !== null && v !== undefined && v !== '') || '入力必須です',
+  numeric: (v: any) => !isNaN(parseFloat(v)) || '数値を入力してください',
+  minZero: (v: number) => v >= 0 || '0以上の値を入力してください',
 }
 
 const fetchArchetypes = async () => {

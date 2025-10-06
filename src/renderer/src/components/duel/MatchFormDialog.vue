@@ -104,7 +104,6 @@
                 variant="outlined"
                 :items="availableRanks"
                 :rules="[rules.required]"
-                :disabled="props.currentRankTab !== 'Beginner-AA'"
               />
             </v-col>
 
@@ -307,7 +306,7 @@ const rules = {
 }
 
 // ダイアログが開いたらフォームを初期化
-watch(() => props.modelValue, (newValue) => {
+watch(() => props.modelValue, async (newValue) => {
   if (newValue) {
     if (props.match) {
       // 編集モード
@@ -322,14 +321,38 @@ watch(() => props.modelValue, (newValue) => {
     } else {
       // 新規作成モード
       form.value = defaultForm()
-      // Set rank based on currentRankTab if not editing
+
+      // 現在のランクタブに応じた最新の試合データを取得してフォームに設定
+      let latestMatch = null
+      try {
+        const latestMatchResult = await api.getLatestMatchByRankTab(props.currentRankTab)
+        if (latestMatchResult.success && latestMatchResult.data) {
+          latestMatch = latestMatchResult.data
+        }
+      } catch (error) {
+        console.error('Failed to fetch latest match data for rank tab:', error)
+      }
+
+      // 最新のクラスとアーキタイプを適用
+      form.value.player_class = latestMatch?.player_class || ''
+      form.value.player_archetype = latestMatch?.player_archetype || ''
+
+      // currentRankTabに基づいてplayer_rank, player_group, player_mpを初期化
       if (props.currentRankTab === 'Master') {
         form.value.player_rank = 'Master'
+        form.value.player_mp = latestMatch?.player_mp || undefined
       } else if (props.currentRankTab === 'Grand Master') {
         form.value.player_rank = 'Grand Master'
+        form.value.player_mp = latestMatch?.player_mp || undefined
+        // CRはクラス選択時に設定されるため、ここでは設定しない
       } else if (props.currentRankTab === 'Beginner-AA') {
-        form.value.player_rank = 'Beginner'
-        form.value.player_group = 'エメラルド' // デフォルト値を設定
+        form.value.player_rank = latestMatch?.player_rank && availableRanks.value.includes(latestMatch.player_rank) ? latestMatch.player_rank : 'Beginner'
+        form.value.player_group = latestMatch?.player_group || 'エメラルド'
+      }
+
+      // 最新のクラスに基づいてアーキタイプを取得
+      if (form.value.player_class) {
+        fetchArchetypes(form.value.player_class, 'player')
       }
     }
   }
@@ -352,11 +375,35 @@ watch(() => props.currentRankTab, (newTab) => {
 })
 
 // クラス選択時にアーキタイプをフェッチ
-watch(() => form.value.player_class, (newClass) => {
+watch(() => form.value.player_class, async (newClass) => {
   if (newClass) {
     fetchArchetypes(newClass, 'player')
+    // Grand Masterタブの場合のみCRを自動設定
+    if (props.currentRankTab === 'Grand Master') {
+      try {
+        // 1. 最新のGrand Master CRを取得
+        const latestCrResult = await api.getLatestCrForClass(newClass, 'Grand Master')
+        if (latestCrResult.success && latestCrResult.data !== undefined) {
+          form.value.player_cr = latestCrResult.data
+        } else {
+          // 2. Grand Masterデータがない場合、クラスのデフォルトCRを取得
+          const archetypesResult = await api.getArchetypes(newClass)
+          if (archetypesResult.success && archetypesResult.data && archetypesResult.data.length > 0) {
+            form.value.player_cr = archetypesResult.data[0].default_cr
+          } else {
+            form.value.player_cr = undefined // デフォルトCRも設定されていない場合
+          }
+        }
+      } catch (error) {
+        console.error('Failed to set CR for class:', error)
+        form.value.player_cr = undefined
+      }
+    }
   } else {
     playerArchetypes.value = []
+    if (props.currentRankTab === 'Grand Master') {
+      form.value.player_cr = undefined
+    }
   }
 })
 

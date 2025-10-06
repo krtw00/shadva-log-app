@@ -18,4 +18,5 @@ export interface Archetype {
   id?: number;
   name: string;
   class_name: string;
+  default_cr?: number;
 }

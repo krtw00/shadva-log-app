@@ -142,6 +142,60 @@ export function useApi() {
         loadingStore.stop(requestId)
       }
     },
+
+    async getLatestCrForClass(className: string, rank: string) {
+      const requestId = `getLatestCrForClass-${className}-${rank}`
+      loadingStore.start(requestId)
+      try {
+        const result = await window.api.getLatestCrForClass(className, rank)
+        if (!result.success) {
+          notificationStore.error(result.error || '最新のCRの取得に失敗しました')
+          throw new Error(result.error || '最新のCRの取得に失敗しました')
+        }
+        return result
+      } catch (error: any) {
+        notificationStore.error(error.message || '最新のCRの取得中にエラーが発生しました')
+        throw error
+      } finally {
+        loadingStore.stop(requestId)
+      }
+    },
+
+    async getLatestMatch() {
+      const requestId = 'getLatestMatch'
+      loadingStore.start(requestId)
+      try {
+        const result = await window.api.getLatestMatch()
+        if (!result.success) {
+          notificationStore.error(result.error || '最新の試合データの取得に失敗しました')
+          throw new Error(result.error || '最新の試合データの取得に失敗しました')
+        }
+        return result
+      } catch (error: any) {
+        notificationStore.error(error.message || '最新の試合データの取得中にエラーが発生しました')
+        throw error
+      } finally {
+        loadingStore.stop(requestId)
+      }
+    },
+
+    async getLatestMatchByRankTab(rankTab: 'Beginner-AA' | 'Master' | 'Grand Master') {
+      const requestId = `getLatestMatchByRankTab-${rankTab}`
+      loadingStore.start(requestId)
+      try {
+        const result = await window.api.getLatestMatchByRankTab(rankTab)
+        if (!result.success) {
+          notificationStore.error(result.error || 'ランクタブに応じた最新の試合データの取得に失敗しました')
+          throw new Error(result.error || 'ランクタブに応じた最新の試合データの取得に失敗しました')
+        }
+        return result
+      } catch (error: any) {
+        notificationStore.error(error.message || 'ランクタブに応じた最新の試合データの取得中にエラーが発生しました')
+        throw error
+      } finally {
+        loadingStore.stop(requestId)
+      }
+    },
   }
   return api
 }

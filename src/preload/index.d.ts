@@ -20,6 +20,7 @@ interface Archetype {
   id?: number
   name: string
   class_name: string
+  default_cr?: number
 }
 
 declare global {
@@ -33,6 +34,9 @@ declare global {
       getArchetypes: (className?: string) => Promise<{ success: boolean; data?: Archetype[]; error?: string }>
       updateArchetype: (archetype: Archetype) => Promise<{ success: boolean; changes?: number; error?: string }>
       deleteArchetype: (id: number) => Promise<{ success: boolean; changes?: number; error?: string }>
+      getLatestCrForClass: (className: string, rank: string) => Promise<{ success: boolean; data?: number; error?: string }>
+      getLatestMatch: () => Promise<{ success: boolean; data?: Match; error?: string }>
+      getLatestMatchByRankTab: (rankTab: 'Beginner-AA' | 'Master' | 'Grand Master') => Promise<{ success: boolean; data?: Match; error?: string }>
     }
   }
 }

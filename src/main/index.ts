@@ -49,9 +49,19 @@ function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS archetypes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
-        class_name TEXT NOT NULL
+        class_name TEXT NOT NULL,
+        default_cr INTEGER DEFAULT 0
       );
     `)
+
+    // default_crカラムを追加（既存テーブルには存在しない場合）
+    try {
+      db.exec(`ALTER TABLE archetypes ADD COLUMN default_cr INTEGER DEFAULT 0;`);
+      console.log('Added default_cr column to archetypes table.');
+    } catch (error) {
+      // カラムが既に存在する場合はエラーを無視
+      console.log('default_cr column already exists or could not be added.');
+    }
     
     // archetypesテーブルのUNIQUE制約をマイグレーション
     try {
@@ -197,6 +207,53 @@ app.whenReady().then(() => {
     }
   })
 
+  ipcMain.handle('db:get-latest-match-by-rank-tab', async (_event, rankTab: 'Beginner-AA' | 'Master' | 'Grand Master') => {
+    try {
+      let rankFilter = '';
+      if (rankTab === 'Beginner-AA') {
+        rankFilter = "player_rank IN ('Beginner', 'D', 'C', 'B', 'A', 'AA')";
+      } else if (rankTab === 'Master') {
+        rankFilter = "player_rank = 'Master'";
+      } else if (rankTab === 'Grand Master') {
+        rankFilter = "player_rank = 'Grand Master'";
+      }
+
+      let latestMatch;
+      if (rankFilter) {
+        latestMatch = db.prepare(`SELECT * FROM matches WHERE ${rankFilter} ORDER BY match_date DESC LIMIT 1`).get();
+      } else {
+        latestMatch = db.prepare('SELECT * FROM matches ORDER BY match_date DESC LIMIT 1').get();
+      }
+      
+      return { success: true, data: latestMatch };
+    } catch (error: any) {
+      console.error('Failed to get latest match by rank tab:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('db:get-latest-match', async (_event) => {
+    try {
+      const latestMatch = db.prepare('SELECT * FROM matches ORDER BY match_date DESC LIMIT 1').get();
+      return { success: true, data: latestMatch };
+    } catch (error: any) {
+      console.error('Failed to get latest match:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('db:get-latest-cr-for-class', async (_event, className: string, rank: string) => {
+    try {
+      const latestCr = db.prepare(
+        'SELECT player_cr FROM matches WHERE player_class = ? AND player_rank = ? AND player_cr IS NOT NULL ORDER BY match_date DESC LIMIT 1'
+      ).get(className, rank);
+      return { success: true, data: latestCr ? latestCr.player_cr : undefined };
+    } catch (error: any) {
+      console.error('Failed to get latest CR for class:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
   ipcMain.handle('db:add-archetype', async (_event, archetype) => {
     try {
       // 既存のアーキタイプをチェック
@@ -209,8 +266,8 @@ app.whenReady().then(() => {
       }
       
       // 新規追加
-      const stmt = db.prepare('INSERT INTO archetypes (name, class_name) VALUES (?, ?)');
-      const info = stmt.run(archetype.name, archetype.class_name);
+      const stmt = db.prepare('INSERT INTO archetypes (name, class_name, default_cr) VALUES (?, ?, ?)');
+      const info = stmt.run(archetype.name, archetype.class_name, archetype.default_cr || 0);
       return { success: true, lastInsertRowid: info.lastInsertRowid };
     } catch (error: any) {
       console.error('Failed to add archetype:', error);
@@ -235,8 +292,8 @@ app.whenReady().then(() => {
 
   ipcMain.handle('db:update-archetype', async (_event, archetype) => {
     try {
-      const stmt = db.prepare('UPDATE archetypes SET name = ?, class_name = ? WHERE id = ?');
-      const info = stmt.run(archetype.name, archetype.class_name, archetype.id);
+      const stmt = db.prepare('UPDATE archetypes SET name = ?, class_name = ?, default_cr = ? WHERE id = ?');
+      const info = stmt.run(archetype.name, archetype.class_name, archetype.default_cr || 0, archetype.id);
       return { success: true, changes: info.changes };
     } catch (error: any) {
       console.error('Failed to update archetype:', error);

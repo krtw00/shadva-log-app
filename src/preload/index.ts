@@ -9,7 +9,10 @@ const api = {
   addArchetype: (archetype) => ipcRenderer.invoke('db:add-archetype', archetype),
   getArchetypes: (className?: string) => ipcRenderer.invoke('db:get-archetypes', className),
   updateArchetype: (archetype) => ipcRenderer.invoke('db:update-archetype', archetype),
-  deleteArchetype: (id) => ipcRenderer.invoke('db:delete-archetype', id)
+  deleteArchetype: (id) => ipcRenderer.invoke('db:delete-archetype', id),
+  getLatestCrForClass: (className, rank) => ipcRenderer.invoke('db:get-latest-cr-for-class', className, rank),
+  getLatestMatch: () => ipcRenderer.invoke('db:get-latest-match'),
+  getLatestMatchByRankTab: (rankTab) => ipcRenderer.invoke('db:get-latest-match-by-rank-tab', rankTab)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
