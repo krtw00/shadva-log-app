@@ -6,7 +6,6 @@
     persistent
   >
     <v-card class="match-form-card">
-      <div class="card-glow"></div>
       
       <v-card-title class="pa-6">
         <v-icon class="mr-2" color="primary">mdi-file-document-edit</v-icon>
@@ -412,27 +411,11 @@ const closeDialog = () => {
 
 <style scoped lang="scss">
 .match-form-card {
-  background: rgba(18, 22, 46, 0.98) !important;
+  background: #ffffff !important;
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 217, 255, 0.2);
+  border: 1px solid rgba(224, 224, 224, 0.8);
   border-radius: 12px !important;
   position: relative;
   overflow: hidden;
-}
-
-.card-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #00d9ff, #b536ff, #ff2d95);
-  animation: shimmer 3s linear infinite;
-}
-
-@keyframes shimmer {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
 }
 </style>

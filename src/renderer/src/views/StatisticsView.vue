@@ -281,6 +281,98 @@
             </v-card>
           </v-col>
 
+          <!-- クラス別勝率グラフ -->
+          <v-col cols="12" lg="6">
+            <v-card class="stats-card">
+              <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="primary">mdi-chart-bar</v-icon>
+                クラス別勝率
+              </v-card-title>
+              <v-divider />
+              <v-card-text>
+                <Bar
+                  v-if="classWinRateChartData.labels.length > 0"
+                  :data="classWinRateChartData"
+                  :options="classWinRateChartOptions"
+                  style="height: 300px;"
+                />
+                <div v-else class="no-data-placeholder py-8">
+                  <v-icon size="48" color="grey">mdi-chart-bar</v-icon>
+                  <p class="text-body-2 text-grey mt-2">データがありません</p>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <!-- 対戦相手アーキタイプ別対戦数円グラフ -->
+          <v-col cols="12" lg="6">
+            <v-card class="stats-card">
+              <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="warning">mdi-chart-pie</v-icon>
+                対戦相手アーキタイプ別対戦数
+              </v-card-title>
+              <v-divider />
+              <v-card-text>
+                <Pie
+                  v-if="opponentArchetypeMatchCountChartData.labels.length > 0"
+                  :data="opponentArchetypeMatchCountChartData"
+                  :options="opponentArchetypeMatchCountChartOptions"
+                  style="height: 300px;"
+                />
+                <div v-else class="no-data-placeholder py-8">
+                  <v-icon size="48" color="grey">mdi-chart-pie</v-icon>
+                  <p class="text-body-2 text-grey mt-2">データがありません</p>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <!-- クラス相性マトリックス ヒートマップ -->
+          <v-col cols="12">
+            <v-card class="stats-card">
+              <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="info">mdi-grid</v-icon>
+                クラス相性マトリックス
+              </v-card-title>
+              <v-divider />
+              <v-card-text>
+                <div v-if="allUniqueClasses.length > 0" class="heatmap-container">
+                  <table class="heatmap-table">
+                    <thead>
+                      <tr>
+                        <th>自分 \ 相手</th>
+                        <th v-for="oClass in allUniqueClasses" :key="oClass">{{ oClass }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="pClass in allUniqueClasses" :key="pClass">
+                        <th>{{ pClass }}</th>
+                        <td
+                          v-for="oClass in allUniqueClasses"
+                          :key="oClass"
+                          :class="getWinRateColor(matchupMatrix[pClass][oClass].win_rate)"
+                          class="heatmap-cell"
+                        >
+                          <template v-if="matchupMatrix[pClass][oClass].total_matches > 0">
+                            {{ matchupMatrix[pClass][oClass].win_rate.toFixed(1) }}%
+                            <div class="text-caption text-grey-darken-1">({{ matchupMatrix[pClass][oClass].total_matches }}戦)</div>
+                          </template>
+                          <template v-else>
+                            -
+                          </template>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div v-else class="no-data-placeholder py-8">
+                  <v-icon size="48" color="grey">mdi-grid</v-icon>
+                  <p class="text-body-2 text-grey mt-2">相性データがありません</p>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
           <!-- グループ別統計 (Beginner-AAのみ) -->
           <v-col cols="12" lg="6" v-if="selectedRankTab === 'Beginner-AA'">
             <v-card class="stats-card">
@@ -357,6 +449,10 @@ import { ref, onMounted, computed } from 'vue'
 import { useApi } from '../services/api'
 import type { Match } from '@/types'
 import StatCard from '../components/duel/StatCard.vue'
+import { Bar, Pie } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement)
 
 
 const api = useApi()
@@ -443,11 +539,142 @@ const timeStatsHeaders = [
   { title: '勝率', key: 'win_rate', sortable: true }
 ]
 
+const classWinRateChartData = computed(() => {
+  const labels = classStats.value.map(s => s.class_name)
+  const data = classStats.value.map(s => s.win_rate)
+  const backgroundColors = data.map(rate => getWinRateColor(rate) === 'success' ? '#4CAF50' : getWinRateColor(rate) === 'warning' ? '#FF9800' : '#f44336')
+
+  return {
+    labels: labels,
+    datasets: [
+      {
+        label: '勝率 (%)',
+        backgroundColor: backgroundColors,
+        data: data
+      }
+    ]
+  }
+})
+
+const classWinRateChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    },
+    title: {
+      display: true,
+      text: 'クラス別勝率',
+      font: {
+        size: 16
+      },
+      color: '#212121'
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      max: 100,
+      title: {
+        display: true,
+        text: '勝率 (%)',
+        color: '#212121'
+      },
+      ticks: {
+        color: '#212121'
+      },
+      grid: {
+        color: 'rgba(0, 0, 0, 0.1)'
+      }
+    },
+    x: {
+      ticks: {
+        color: '#212121'
+      },
+      grid: {
+        color: 'rgba(0, 0, 0, 0.1)'
+      }
+    }
+  }
+}
+
+const opponentArchetypeMatchCountChartData = computed(() => {
+  const labels = opponentArchetypeStats.value.map(s => s.archetype)
+  const data = opponentArchetypeStats.value.map(s => s.total)
+  const backgroundColors = [
+    '#2196F3', '#FF9800', '#4CAF50', '#E91E63', '#9C27B0',
+    '#00BCD4', '#FFEB3B', '#795548', '#607D8B', '#F44336'
+  ] // Example colors
+
+  return {
+    labels: labels,
+    datasets: [
+      {
+        backgroundColor: backgroundColors.slice(0, labels.length),
+        data: data
+      }
+    ]
+  }
+})
+
+const opponentArchetypeMatchCountChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'right',
+      labels: {
+        color: '#212121'
+      }
+    },
+    title: {
+      display: true,
+      text: '対戦相手アーキタイプ別対戦数',
+      font: {
+        size: 16
+      },
+      color: '#212121'
+    }
+  }
+}
+
 const getWinRateColor = (winRate: number) => {
   if (winRate >= 60) return 'success'
   if (winRate >= 50) return 'warning'
   return 'error'
 }
+
+const allUniqueClasses = computed(() => {
+  const classes = new Set<string>()
+  matchupData.value.forEach(item => {
+    classes.add(item.player_class)
+    classes.add(item.opponent_class)
+  })
+  return Array.from(classes).sort()
+})
+
+const matchupMatrix = computed(() => {
+  const matrix: { [playerClass: string]: { [opponentClass: string]: { total_matches: number; win_rate: number } } } = {}
+  const classes = allUniqueClasses.value
+
+  classes.forEach(pClass => {
+    matrix[pClass] = {}
+    classes.forEach(oClass => {
+      matrix[pClass][oClass] = { total_matches: 0, win_rate: 0 } // Default to 0
+    })
+  })
+
+  matchupData.value.forEach(item => {
+    if (matrix[item.player_class] && matrix[item.player_class][item.opponent_class]) {
+      matrix[item.player_class][item.opponent_class] = {
+        total_matches: item.total_matches,
+        win_rate: item.win_rate
+      }
+    }
+  })
+  return matrix
+})
 
 const fetchStatistics = async () => {
   loading.value = true
@@ -559,14 +786,13 @@ const calculateStats = (matches: Match[]) => {
   // 対戦相手アーキタイプ別統計
   const opponentArchetypeCounts: any = {}
   matches.forEach(m => {
-    if (m.opponent_archetype) {
-      const key = `${m.opponent_class}|${m.opponent_archetype}`
-      if (!opponentArchetypeCounts[key]) {
-        opponentArchetypeCounts[key] = { class_name: m.opponent_class, archetype: m.opponent_archetype, wins: 0, total: 0 }
-      }
-      opponentArchetypeCounts[key].total++
-      if (m.result === 1) opponentArchetypeCounts[key].wins++
+    const archetype = m.opponent_archetype || 'アーキタイプなし'
+    const key = `${m.opponent_class}|${archetype}`
+    if (!opponentArchetypeCounts[key]) {
+      opponentArchetypeCounts[key] = { class_name: m.opponent_class, archetype: archetype, wins: 0, total: 0 }
     }
+    opponentArchetypeCounts[key].total++
+    if (m.result === 1) opponentArchetypeCounts[key].wins++
   })
   
   opponentArchetypeStats.value = Object.values(opponentArchetypeCounts).map((data: any) => ({
@@ -740,6 +966,62 @@ onMounted(() => {
 
   :deep(.v-data-table__tr:hover) {
     background: rgba(33, 150, 243, 0.05) !important;
+  }
+}
+
+.heatmap-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.heatmap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th,
+  td {
+    border: 1px solid rgba(224, 224, 224, 0.5);
+    padding: 8px;
+    text-align: center;
+    min-width: 80px; /* Adjust as needed */
+  }
+
+  thead th {
+    background-color: rgba(245, 245, 245, 0.8);
+    font-weight: 600;
+    color: rgba(33, 33, 33, 0.87);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  tbody th {
+    background-color: rgba(245, 245, 245, 0.8);
+    font-weight: 600;
+    color: rgba(33, 33, 33, 0.87);
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(33, 150, 243, 0.05);
+  }
+
+  .heatmap-cell {
+    color: rgba(33, 33, 33, 0.87);
+    transition: background-color 0.3s ease;
+
+    &.success {
+      background-color: rgba(76, 175, 80, 0.2); /* Green */
+    }
+    &.warning {
+      background-color: rgba(255, 152, 0, 0.2); /* Orange */
+    }
+    &.error {
+      background-color: rgba(244, 67, 54, 0.2); /* Red */
+    }
   }
 }
 </style>
