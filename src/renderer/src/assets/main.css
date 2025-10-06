@@ -46,7 +46,7 @@ code {
 }
 
 .logo:hover {
-  filter: drop-shadow(0 0 1.2em #2196F3aa);
+  filter: drop-shadow(0 0 1.2em #2196f3aa);
 }
 
 .creator {

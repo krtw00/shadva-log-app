@@ -1,40 +1,5 @@
 <template>
-  <v-app>
-    <!-- ナビゲーションバー -->
-    <v-app-bar elevation="0" class="app-bar">
-      <v-app-bar-title class="ml-4">
-        <span class="logo-text-supicha">{{ AppConfig.appLogoTextSupicha }}</span>
-        <span class="logo-text-log">{{ AppConfig.appLogoTextLog }}</span>
-      </v-app-bar-title>
-
-      <v-spacer />
-
-      <v-btn
-        prepend-icon="mdi-view-dashboard"
-        variant="flat"
-        color="primary"
-      >
-        ダッシュボード
-      </v-btn>
-      <v-btn
-        prepend-icon="mdi-chart-box"
-        variant="text"
-        @click="$router.push('/statistics')"
-      >
-        統計
-      </v-btn>
-      <v-btn
-        prepend-icon="mdi-shape"
-        variant="text"
-        @click="$router.push('/archetypes')"
-      >
-        アーキタイプ管理
-      </v-btn>
-    </v-app-bar>
-
-    <!-- メインコンテンツ -->
-    <v-main class="main-content">
-      <v-container fluid class="pa-6">
+  <v-container fluid class="pa-6">
         <h1 class="text-h4 text-white mb-6"></h1>
 
         <!-- 年月選択 -->
@@ -66,20 +31,13 @@
         <!-- ランク別タブ -->
         <v-row class="mb-4">
           <v-col cols="12">
-            <v-tabs
-              v-model="selectedRankTab"
-              background-color="transparent"
-              color="primary"
-              grow
-            >
+            <v-tabs v-model="selectedRankTab" background-color="transparent" color="primary" grow>
               <v-tab value="Beginner-AA">Beginner-AA</v-tab>
               <v-tab value="Master">Master</v-tab>
               <v-tab value="Grand Master">Grand Master</v-tab>
             </v-tabs>
           </v-col>
         </v-row>
-
-
 
         <!-- 統計カード -->
         <v-row class="mb-4">
@@ -177,17 +135,15 @@
             @delete="deleteMatch"
           />
         </v-card>
-      </v-container>
-    </v-main>
+  </v-container>
 
-    <!-- 対戦記録入力ダイアログ -->
-    <match-form-dialog
-      v-model="dialogOpen"
-      :match="selectedMatch"
-      :current-rank-tab="selectedRankTab"
-      @saved="handleSaved"
-    />
-  </v-app>
+  <!-- 対戦記録入力ダイアログ -->
+  <match-form-dialog
+    v-model="dialogOpen"
+    :match="selectedMatch"
+    :current-rank-tab="selectedRankTab"
+    @saved="handleSaved"
+  />
 </template>
 
 <script setup lang="ts">
@@ -200,13 +156,9 @@ import MatchFormDialog from '../components/duel/MatchFormDialog.vue'
 import { useNotificationStore } from '../stores/notification'
 import { AppConfig } from '../config/app-config'
 
-
 const api = useApi()
 const notificationStore = useNotificationStore()
 const fileInput = ref<HTMLInputElement | null>(null)
-
-
-
 
 const matches = ref<Match[]>([])
 const loading = ref(false)
@@ -225,25 +177,26 @@ const years = computed(() => {
 })
 const months = Array.from({ length: 12 }, (_, i) => i + 1)
 
-
-
 const filteredMatches = computed(() => {
   let filtered = matches.value
 
   // 年月でフィルタリング
-  filtered = filtered.filter(match => {
+  filtered = filtered.filter((match) => {
     const matchDate = new Date(match.match_date)
-    return matchDate.getFullYear() === selectedYear.value && (matchDate.getMonth() + 1) === selectedMonth.value
+    return (
+      matchDate.getFullYear() === selectedYear.value &&
+      matchDate.getMonth() + 1 === selectedMonth.value
+    )
   })
 
   // ランク別タブでフィルタリング
   if (selectedRankTab.value === 'Beginner-AA') {
-    const beginnerAARanks = ['Beginner', 'D', 'C', 'B', 'A', 'AA'];
-    filtered = filtered.filter(match => beginnerAARanks.includes(match.player_rank));
+    const beginnerAARanks = ['Beginner', 'D', 'C', 'B', 'A', 'AA']
+    filtered = filtered.filter((match) => beginnerAARanks.includes(match.player_rank))
   } else if (selectedRankTab.value === 'Master') {
-    filtered = filtered.filter(match => match.player_rank === 'Master');
+    filtered = filtered.filter((match) => match.player_rank === 'Master')
   } else if (selectedRankTab.value === 'Grand Master') {
-    filtered = filtered.filter(match => match.player_rank === 'Grand Master');
+    filtered = filtered.filter((match) => match.player_rank === 'Grand Master')
   }
 
   return filtered
@@ -264,7 +217,7 @@ const emptyStats = (): MatchStats => ({
   lose_count: 0,
   win_rate: 0,
   first_turn_win_rate: 0,
-  second_turn_win_rate: 0,
+  second_turn_win_rate: 0
 })
 
 const currentStats = computed(() => calculateStats(filteredMatches.value))
@@ -289,11 +242,11 @@ const calculateStats = (matchList: Match[]): MatchStats => {
     return emptyStats()
   }
 
-  const wins = matchList.filter(m => m.result === 1).length
-  const firstTurnTotal = matchList.filter(m => m.is_first === 1).length
-  const firstTurnWins = matchList.filter(m => m.result === 1 && m.is_first === 1).length
-  const secondTurnTotal = matchList.filter(m => m.is_first === 0).length
-  const secondTurnWins = matchList.filter(m => m.result === 1 && m.is_first === 0).length
+  const wins = matchList.filter((m) => m.result === 1).length
+  const firstTurnTotal = matchList.filter((m) => m.is_first === 1).length
+  const firstTurnWins = matchList.filter((m) => m.result === 1 && m.is_first === 1).length
+  const secondTurnTotal = matchList.filter((m) => m.is_first === 0).length
+  const secondTurnWins = matchList.filter((m) => m.result === 1 && m.is_first === 0).length
 
   return {
     total_matches: total,
@@ -301,7 +254,7 @@ const calculateStats = (matchList: Match[]): MatchStats => {
     lose_count: total - wins,
     win_rate: wins / total,
     first_turn_win_rate: firstTurnTotal > 0 ? firstTurnWins / firstTurnTotal : 0,
-    second_turn_win_rate: secondTurnTotal > 0 ? secondTurnWins / secondTurnTotal : 0,
+    second_turn_win_rate: secondTurnTotal > 0 ? secondTurnWins / secondTurnTotal : 0
   }
 }
 
@@ -318,7 +271,7 @@ const editMatch = (match: Match) => {
 const deleteMatch = async (matchId: number | undefined) => {
   if (matchId === undefined) return
   if (!confirm('この対戦記録を削除しますか？')) return
-  
+
   try {
     await api.deleteMatch(matchId)
     await fetchMatches()
@@ -352,7 +305,7 @@ const exportCSV = () => {
     ]
 
     // CSVデータを作成
-    const rows = matches.value.map(match => [
+    const rows = matches.value.map((match) => [
       match.id || '',
       match.match_date,
       match.player_rank,
@@ -371,7 +324,7 @@ const exportCSV = () => {
     // CSV文字列を生成
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))
     ].join('\n')
 
     // BOM付きUTF-8でエンコード
@@ -402,8 +355,8 @@ const importCSV = async (event: Event) => {
 
   try {
     const text = await file.text()
-    const lines = text.split('\n').filter(line => line.trim())
-    
+    const lines = text.split('\n').filter((line) => line.trim())
+
     if (lines.length < 2) {
       notificationStore.error('CSVファイルが空です')
       return
@@ -416,7 +369,7 @@ const importCSV = async (event: Event) => {
     for (const line of dataLines) {
       // CSVパース (ダブルクォート内のカンマを考慮)
       const regex = /,(?=(?:[^"]*"[^"]*")*[^"]*$)/
-      const values = line.split(regex).map(v => v.replace(/^"|"$/g, '').trim())
+      const values = line.split(regex).map((v) => v.replace(/^"|"$/g, '').trim())
 
       if (values.length < 11) continue
 
@@ -471,7 +424,7 @@ onMounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
       radial-gradient(circle at 20% 30%, rgba(33, 150, 243, 0.03) 0%, transparent 50%),
       radial-gradient(circle at 80% 70%, rgba(158, 158, 158, 0.02) 0%, transparent 50%);
     pointer-events: none;
@@ -491,10 +444,10 @@ onMounted(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.logo-text-supicha {
+.logo-text-shadva {
   font-weight: 900;
   font-size: 1.25rem;
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -504,15 +457,13 @@ onMounted(() => {
 .logo-text-log {
   font-weight: 900;
   font-size: 1.25rem;
-  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: 0.5px;
   margin-left: 2px;
 }
-
-
 
 .match-card {
   background: rgba(255, 255, 255, 0.98) !important;
@@ -526,7 +477,7 @@ onMounted(() => {
   font-weight: 600;
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(33, 150, 243, 0.2);

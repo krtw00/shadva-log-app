@@ -18,7 +18,7 @@ const customLightTheme = {
     success: '#4CAF50',
     warning: '#FF9800',
     'on-background': '#212121',
-    'on-surface': '#212121',
+    'on-surface': '#212121'
   }
 }
 
@@ -34,10 +34,10 @@ export default createVuetify({
   defaults: {
     VBtn: {
       style: 'text-transform: none;',
-      elevation: 0,
+      elevation: 0
     },
     VCard: {
-      elevation: 0,
+      elevation: 0
     }
   }
 })

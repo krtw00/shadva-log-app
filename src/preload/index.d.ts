@@ -27,16 +27,31 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: {
-      addMatch: (match: Match) => Promise<{ success: boolean; lastInsertRowid?: number; error?: string }>
+      addMatch: (
+        match: Match
+      ) => Promise<{ success: boolean; lastInsertRowid?: number; error?: string }>
       getMatches: () => Promise<{ success: boolean; data?: Match[]; error?: string }>
       deleteMatch: (id: number) => Promise<{ success: boolean; changes?: number; error?: string }>
-      addArchetype: (archetype: Archetype) => Promise<{ success: boolean; lastInsertRowid?: number; error?: string }>
-      getArchetypes: (className?: string) => Promise<{ success: boolean; data?: Archetype[]; error?: string }>
-      updateArchetype: (archetype: Archetype) => Promise<{ success: boolean; changes?: number; error?: string }>
-      deleteArchetype: (id: number) => Promise<{ success: boolean; changes?: number; error?: string }>
-      getLatestCrForClass: (className: string, rank: string) => Promise<{ success: boolean; data?: number; error?: string }>
+      addArchetype: (
+        archetype: Archetype
+      ) => Promise<{ success: boolean; lastInsertRowid?: number; error?: string }>
+      getArchetypes: (
+        className?: string
+      ) => Promise<{ success: boolean; data?: Archetype[]; error?: string }>
+      updateArchetype: (
+        archetype: Archetype
+      ) => Promise<{ success: boolean; changes?: number; error?: string }>
+      deleteArchetype: (
+        id: number
+      ) => Promise<{ success: boolean; changes?: number; error?: string }>
+      getLatestCrForClass: (
+        className: string,
+        rank: string
+      ) => Promise<{ success: boolean; data?: number; error?: string }>
       getLatestMatch: () => Promise<{ success: boolean; data?: Match; error?: string }>
-      getLatestMatchByRankTab: (rankTab: 'Beginner-AA' | 'Master' | 'Grand Master') => Promise<{ success: boolean; data?: Match; error?: string }>
+      getLatestMatchByRankTab: (
+        rankTab: 'Beginner-AA' | 'Master' | 'Grand Master'
+      ) => Promise<{ success: boolean; data?: Match; error?: string }>
     }
   }
 }

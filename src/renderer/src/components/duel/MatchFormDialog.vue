@@ -6,7 +6,6 @@
     persistent
   >
     <v-card class="match-form-card">
-      
       <v-card-title class="pa-6">
         <v-icon class="mr-2" color="primary">mdi-file-document-edit</v-icon>
         <span class="text-h5">{{ isEdit ? '対戦記録を編集' : '新規対戦記録' }}</span>
@@ -36,7 +35,7 @@
                 label="自分のアーキタイプ"
                 prepend-inner-icon="mdi-strategy"
                 variant="outlined"
-                :items="playerArchetypes.map(a => a.name)"
+                :items="playerArchetypes.map((a) => a.name)"
                 :loading="loadingArchetypes"
                 :disabled="!form.player_class"
                 clearable
@@ -63,7 +62,7 @@
                 label="相手のアーキタイプ"
                 prepend-inner-icon="mdi-strategy"
                 variant="outlined"
-                :items="opponentArchetypes.map(a => a.name)"
+                :items="opponentArchetypes.map((a) => a.name)"
                 :loading="loadingArchetypes"
                 :disabled="!form.opponent_class"
                 clearable
@@ -120,7 +119,11 @@
             </v-col>
 
             <!-- MP -->
-            <v-col cols="12" md="6" v-if="props.currentRankTab === 'Master' || props.currentRankTab === 'Grand Master'">
+            <v-col
+              cols="12"
+              md="6"
+              v-if="props.currentRankTab === 'Master' || props.currentRankTab === 'Grand Master'"
+            >
               <v-text-field
                 v-model.number="form.player_mp"
                 label="MP"
@@ -172,8 +175,6 @@
                 :rules="[rules.maxLength]"
               />
             </v-col>
-
-
           </v-row>
         </v-form>
       </v-card-text>
@@ -182,17 +183,8 @@
 
       <v-card-actions class="pa-4">
         <v-spacer />
-        <v-btn
-          variant="text"
-          @click="closeDialog"
-        >
-          キャンセル
-        </v-btn>
-        <v-btn
-          color="primary"
-          :loading="loading"
-          @click="handleSubmit"
-        >
+        <v-btn variant="text" @click="closeDialog"> キャンセル </v-btn>
+        <v-btn color="primary" :loading="loading" @click="handleSubmit">
           <v-icon start>mdi-content-save</v-icon>
           {{ isEdit ? '更新' : '登録' }}
         </v-btn>
@@ -244,7 +236,15 @@ const fetchArchetypes = async (className: string, type: 'player' | 'opponent') =
   }
 }
 
-const playerClasses = ['エルフ', 'ロイヤル', 'ウィッチ', 'ドラゴン', 'ナイトメア', 'ビショップ', 'ネメシス']
+const playerClasses = [
+  'エルフ',
+  'ロイヤル',
+  'ウィッチ',
+  'ドラゴン',
+  'ナイトメア',
+  'ビショップ',
+  'ネメシス'
+]
 const ranks = ['Beginner', 'D', 'C', 'B', 'A', 'AA', 'Master', 'Grand Master']
 const groupOptions = ['エメラルド', 'トパーズ', 'ルビー', 'サファイア', 'ダイヤモンド']
 
@@ -256,7 +256,7 @@ const defaultForm = (): Match => {
   const hours = String(now.getHours()).padStart(2, '0')
   const minutes = String(now.getMinutes()).padStart(2, '0')
   const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`
-  
+
   return {
     match_date: localDateTime,
     player_rank: '',
@@ -306,114 +306,136 @@ const rules = {
 }
 
 // ダイアログが開いたらフォームを初期化
-watch(() => props.modelValue, async (newValue) => {
-  if (newValue) {
-    if (props.match) {
-      // 編集モード
-      form.value = { ...props.match }
-      // 既存のクラスに基づいてアーキタイプを取得
-      if (form.value.player_class) {
-        fetchArchetypes(form.value.player_class, 'player')
-      }
-      if (form.value.opponent_class) {
-        fetchArchetypes(form.value.opponent_class, 'opponent')
-      }
-    } else {
-      // 新規作成モード
-      form.value = defaultForm()
-
-      // 現在のランクタブに応じた最新の試合データを取得してフォームに設定
-      let latestMatch: Match | null = null
-      try {
-        const latestMatchResult = await api.getLatestMatchByRankTab(props.currentRankTab)
-        if (latestMatchResult.success && latestMatchResult.data) {
-          latestMatch = latestMatchResult.data
+watch(
+  () => props.modelValue,
+  async (newValue) => {
+    if (newValue) {
+      if (props.match) {
+        // 編集モード
+        form.value = { ...props.match }
+        // 既存のクラスに基づいてアーキタイプを取得
+        if (form.value.player_class) {
+          fetchArchetypes(form.value.player_class, 'player')
         }
-      } catch (error) {
-        console.error('Failed to fetch latest match data for rank tab:', error)
-      }
+        if (form.value.opponent_class) {
+          fetchArchetypes(form.value.opponent_class, 'opponent')
+        }
+      } else {
+        // 新規作成モード
+        form.value = defaultForm()
 
-      // 最新のクラスとアーキタイプを適用
-      form.value.player_class = latestMatch?.player_class || ''
-      form.value.player_archetype = latestMatch?.player_archetype || ''
+        // 現在のランクタブに応じた最新の試合データを取得してフォームに設定
+        let latestMatch: Match | null = null
+        try {
+          const latestMatchResult = await api.getLatestMatchByRankTab(props.currentRankTab)
+          if (latestMatchResult.success && latestMatchResult.data) {
+            latestMatch = latestMatchResult.data
+          }
+        } catch (error) {
+          console.error('Failed to fetch latest match data for rank tab:', error)
+        }
 
-      // currentRankTabに基づいてplayer_rank, player_group, player_mpを初期化
-      if (props.currentRankTab === 'Master') {
-        form.value.player_rank = 'Master'
-        form.value.player_mp = latestMatch?.player_mp || undefined
-      } else if (props.currentRankTab === 'Grand Master') {
-        form.value.player_rank = 'Grand Master'
-        form.value.player_mp = latestMatch?.player_mp || undefined
-        // CRはクラス選択時に設定されるため、ここでは設定しない
-      } else if (props.currentRankTab === 'Beginner-AA') {
-        form.value.player_rank = latestMatch?.player_rank && availableRanks.value.includes(latestMatch.player_rank) ? latestMatch.player_rank : 'Beginner'
-        form.value.player_group = latestMatch?.player_group || 'エメラルド'
-      }
+        // 最新のクラスとアーキタイプを適用
+        form.value.player_class = latestMatch?.player_class || ''
+        form.value.player_archetype = latestMatch?.player_archetype || ''
 
-      // 最新のクラスに基づいてアーキタイプを取得
-      if (form.value.player_class) {
-        fetchArchetypes(form.value.player_class, 'player')
+        // currentRankTabに基づいてplayer_rank, player_group, player_mpを初期化
+        if (props.currentRankTab === 'Master') {
+          form.value.player_rank = 'Master'
+          form.value.player_mp = latestMatch?.player_mp || undefined
+        } else if (props.currentRankTab === 'Grand Master') {
+          form.value.player_rank = 'Grand Master'
+          form.value.player_mp = latestMatch?.player_mp || undefined
+          // CRはクラス選択時に設定されるため、ここでは設定しない
+        } else if (props.currentRankTab === 'Beginner-AA') {
+          form.value.player_rank =
+            latestMatch?.player_rank && availableRanks.value.includes(latestMatch.player_rank)
+              ? latestMatch.player_rank
+              : 'Beginner'
+          form.value.player_group = latestMatch?.player_group || 'エメラルド'
+        }
+
+        // 最新のクラスに基づいてアーキタイプを取得
+        if (form.value.player_class) {
+          fetchArchetypes(form.value.player_class, 'player')
+        }
       }
     }
   }
-})
+)
 
 // Watch currentRankTab to update form.player_rank
-watch(() => props.currentRankTab, (newTab) => {
-  if (newTab === 'Master') {
-    form.value.player_rank = 'Master'
-  } else if (newTab === 'Grand Master') {
-    form.value.player_rank = 'Grand Master'
-  } else if (newTab === 'Beginner-AA') {
-    // Beginner-AAタブではユーザーが選択するため、新規作成時のみデフォルト値を設定
-    if (!form.value.player_rank || !['Beginner', 'D', 'C', 'B', 'A', 'AA'].includes(form.value.player_rank)) {
-      form.value.player_rank = 'Beginner'
+watch(
+  () => props.currentRankTab,
+  (newTab) => {
+    if (newTab === 'Master') {
+      form.value.player_rank = 'Master'
+    } else if (newTab === 'Grand Master') {
+      form.value.player_rank = 'Grand Master'
+    } else if (newTab === 'Beginner-AA') {
+      // Beginner-AAタブではユーザーが選択するため、新規作成時のみデフォルト値を設定
+      if (
+        !form.value.player_rank ||
+        !['Beginner', 'D', 'C', 'B', 'A', 'AA'].includes(form.value.player_rank)
+      ) {
+        form.value.player_rank = 'Beginner'
+      }
+    } else {
+      form.value.player_rank = '' // Clear if other tab (should not happen with current tabs)
     }
-  } else {
-    form.value.player_rank = '' // Clear if other tab (should not happen with current tabs)
   }
-})
+)
 
 // クラス選択時にアーキタイプをフェッチ
-watch(() => form.value.player_class, async (newClass) => {
-  if (newClass) {
-    fetchArchetypes(newClass, 'player')
-    // Grand Masterタブの場合のみCRを自動設定
-    if (props.currentRankTab === 'Grand Master') {
-      try {
-        // 1. 最新のGrand Master CRを取得
-        const latestCrResult = await api.getLatestCrForClass(newClass, 'Grand Master')
-        if (latestCrResult.success && latestCrResult.data !== undefined) {
-          form.value.player_cr = latestCrResult.data
-        } else {
-          // 2. Grand Masterデータがない場合、クラスのデフォルトCRを取得
-          const archetypesResult = await api.getArchetypes(newClass)
-          if (archetypesResult.success && archetypesResult.data && archetypesResult.data.length > 0) {
-            form.value.player_cr = archetypesResult.data[0].default_cr
+watch(
+  () => form.value.player_class,
+  async (newClass) => {
+    if (newClass) {
+      fetchArchetypes(newClass, 'player')
+      // Grand Masterタブの場合のみCRを自動設定
+      if (props.currentRankTab === 'Grand Master') {
+        try {
+          // 1. 最新のGrand Master CRを取得
+          const latestCrResult = await api.getLatestCrForClass(newClass, 'Grand Master')
+          if (latestCrResult.success && latestCrResult.data !== undefined) {
+            form.value.player_cr = latestCrResult.data
           } else {
-            form.value.player_cr = undefined // デフォルトCRも設定されていない場合
+            // 2. Grand Masterデータがない場合、クラスのデフォルトCRを取得
+            const archetypesResult = await api.getArchetypes(newClass)
+            if (
+              archetypesResult.success &&
+              archetypesResult.data &&
+              archetypesResult.data.length > 0
+            ) {
+              form.value.player_cr = archetypesResult.data[0].default_cr
+            } else {
+              form.value.player_cr = undefined // デフォルトCRも設定されていない場合
+            }
           }
+        } catch (error) {
+          console.error('Failed to set CR for class:', error)
+          form.value.player_cr = undefined
         }
-      } catch (error) {
-        console.error('Failed to set CR for class:', error)
+      }
+    } else {
+      playerArchetypes.value = []
+      if (props.currentRankTab === 'Grand Master') {
         form.value.player_cr = undefined
       }
     }
-  } else {
-    playerArchetypes.value = []
-    if (props.currentRankTab === 'Grand Master') {
-      form.value.player_cr = undefined
+  }
+)
+
+watch(
+  () => form.value.opponent_class,
+  (newClass) => {
+    if (newClass) {
+      fetchArchetypes(newClass, 'opponent')
+    } else {
+      opponentArchetypes.value = []
     }
   }
-})
-
-watch(() => form.value.opponent_class, (newClass) => {
-  if (newClass) {
-    fetchArchetypes(newClass, 'opponent')
-  } else {
-    opponentArchetypes.value = []
-  }
-})
+)
 
 const handleSubmit = async () => {
   const { valid } = await formRef.value.validate()
@@ -423,12 +445,24 @@ const handleSubmit = async () => {
 
   try {
     // Check and add new player archetype if it doesn't exist
-    if (form.value.player_archetype && !playerArchetypes.value.some(a => a.name === form.value.player_archetype)) {
-      await api.addArchetype({ name: form.value.player_archetype, class_name: form.value.player_class })
+    if (
+      form.value.player_archetype &&
+      !playerArchetypes.value.some((a) => a.name === form.value.player_archetype)
+    ) {
+      await api.addArchetype({
+        name: form.value.player_archetype,
+        class_name: form.value.player_class
+      })
     }
     // Check and add new opponent archetype if it doesn't exist
-    if (form.value.opponent_archetype && !opponentArchetypes.value.some(a => a.name === form.value.opponent_archetype)) {
-      await api.addArchetype({ name: form.value.opponent_archetype, class_name: form.value.opponent_class })
+    if (
+      form.value.opponent_archetype &&
+      !opponentArchetypes.value.some((a) => a.name === form.value.opponent_archetype)
+    ) {
+      await api.addArchetype({
+        name: form.value.opponent_archetype,
+        class_name: form.value.opponent_class
+      })
     }
 
     if (isEdit.value && props.match?.id) {
@@ -440,7 +474,7 @@ const handleSubmit = async () => {
       await api.addMatch(form.value)
       // notificationStore.success('対戦記録を登録しました') // Removed this line
     }
-    
+
     emit('saved')
     closeDialog()
   } catch (error) {

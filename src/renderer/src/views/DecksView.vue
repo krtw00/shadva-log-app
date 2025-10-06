@@ -3,7 +3,7 @@
     <!-- メインコンテンツ -->
     <v-main class="main-content">
       <v-container fluid class="pa-6">
-        <h1 class="text-h4 mb-6" style="color: #212121;">デッキ管理</h1>
+        <h1 class="text-h4 mb-6" style="color: #212121">デッキ管理</h1>
 
         <v-card class="deck-card">
           <v-card-title class="d-flex align-center pa-4">

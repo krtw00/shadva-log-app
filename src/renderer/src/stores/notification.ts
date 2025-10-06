@@ -12,11 +12,7 @@ export const useNotificationStore = defineStore('notification', () => {
   const notifications = ref<Notification[]>([])
   let nextId = 1
 
-  const show = (
-    type: Notification['type'],
-    message: string,
-    duration: number = 5000
-  ) => {
+  const show = (type: Notification['type'], message: string, duration: number = 5000) => {
     const id = nextId++
     notifications.value.push({ id, type, message, duration })
 
@@ -44,7 +40,7 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   const remove = (id: number) => {
-    const index = notifications.value.findIndex(n => n.id === id)
+    const index = notifications.value.findIndex((n) => n.id === id)
     if (index > -1) {
       notifications.value.splice(index, 1)
     }

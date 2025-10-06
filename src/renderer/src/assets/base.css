@@ -43,7 +43,8 @@ ul {
   list-style: none;
 }
 
-html, body {
+html,
+body {
   overflow: hidden;
 }
 

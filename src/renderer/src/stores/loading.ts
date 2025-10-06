@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 
 export const useLoadingStore = defineStore('loading', () => {
   const loadingTasks = ref(new Set<string>())
-  
+
   const isLoading = computed(() => loadingTasks.value.size > 0)
 
   const start = (taskId: string = 'global') => {

@@ -39,7 +39,7 @@ const snackbarStates = ref<Record<number, boolean>>({})
 watch(
   notifications,
   (newNotifications) => {
-    newNotifications.forEach(notification => {
+    newNotifications.forEach((notification) => {
       if (!(notification.id in snackbarStates.value)) {
         snackbarStates.value[notification.id] = true
       }

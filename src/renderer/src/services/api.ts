@@ -185,17 +185,21 @@ export function useApi() {
       try {
         const result = await window.api.getLatestMatchByRankTab(rankTab)
         if (!result.success) {
-          notificationStore.error(result.error || 'ランクタブに応じた最新の試合データの取得に失敗しました')
+          notificationStore.error(
+            result.error || 'ランクタブに応じた最新の試合データの取得に失敗しました'
+          )
           throw new Error(result.error || 'ランクタブに応じた最新の試合データの取得に失敗しました')
         }
         return result
       } catch (error: any) {
-        notificationStore.error(error.message || 'ランクタブに応じた最新の試合データの取得中にエラーが発生しました')
+        notificationStore.error(
+          error.message || 'ランクタブに応じた最新の試合データの取得中にエラーが発生しました'
+        )
         throw error
       } finally {
         loadingStore.stop(requestId)
       }
-    },
+    }
   }
   return api
 }

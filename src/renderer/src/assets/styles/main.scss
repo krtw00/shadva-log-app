@@ -14,7 +14,7 @@
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #e0e0e0, #bdbdbd);
   border-radius: 10px;
-  
+
   &:hover {
     background: linear-gradient(180deg, #d0d0d0, #9e9e9e);
   }
@@ -46,7 +46,7 @@
 .glow {
   box-shadow: 0 0 20px rgba(33, 150, 243, 0.15);
   transition: box-shadow 0.3s ease;
-  
+
   &:hover {
     box-shadow: 0 0 30px rgba(33, 150, 243, 0.25);
   }
@@ -54,20 +54,26 @@
 
 // テキストグラデーション（白背景用に調整）
 .text-gradient-primary {
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-secondary {
-  background: linear-gradient(135deg, #9C27B0 0%, #E91E63 100%);
+  background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 // ヘッダーテキストのデフォルト色を黒に設定
-.text-white, h1, h2, h3, h4, h5, h6 {
+.text-white,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #212121 !important;
 }

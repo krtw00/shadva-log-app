@@ -9,22 +9,22 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Dashboard',
-    component: DashboardView,
+    component: DashboardView
   },
   {
     path: '/decks',
     name: 'Decks',
-    component: DecksView,
+    component: DecksView
   },
   {
     path: '/statistics',
     name: 'Statistics',
-    component: StatisticsView,
+    component: StatisticsView
   },
   {
     path: '/archetypes',
     name: 'ArchetypeManagement',
-    component: ArchetypeManagementView,
+    component: ArchetypeManagementView
   },
   {
     path: '/:pathMatch(.*)*',

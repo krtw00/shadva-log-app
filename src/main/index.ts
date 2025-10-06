@@ -37,11 +37,11 @@ function initializeDatabase() {
 
     // player_groupカラムを追加（既存テーブルには存在しない場合）
     try {
-      db.exec(`ALTER TABLE matches ADD COLUMN player_group TEXT;`);
-      console.log('Added player_group column to matches table.');
+      db.exec(`ALTER TABLE matches ADD COLUMN player_group TEXT;`)
+      console.log('Added player_group column to matches table.')
     } catch (error) {
       // カラムが既に存在する場合はエラーを無視
-      console.log('player_group column already exists or could not be added.');
+      console.log('player_group column already exists or could not be added.')
     }
 
     // archetypesテーブルを作成（存在しない場合のみ）
@@ -56,23 +56,23 @@ function initializeDatabase() {
 
     // default_crカラムを追加（既存テーブルには存在しない場合）
     try {
-      db.exec(`ALTER TABLE archetypes ADD COLUMN default_cr INTEGER DEFAULT 0;`);
-      console.log('Added default_cr column to archetypes table.');
+      db.exec(`ALTER TABLE archetypes ADD COLUMN default_cr INTEGER DEFAULT 0;`)
+      console.log('Added default_cr column to archetypes table.')
     } catch (error) {
       // カラムが既に存在する場合はエラーを無視
-      console.log('default_cr column already exists or could not be added.');
+      console.log('default_cr column already exists or could not be added.')
     }
-    
+
     // archetypesテーブルのUNIQUE制約をマイグレーション
     try {
-      const hasUniqueConstraint = db.prepare(
-        "SELECT sql FROM sqlite_master WHERE type='table' AND name='archetypes'"
-      ).get() as { sql: string } | undefined;
-      
+      const hasUniqueConstraint = db
+        .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='archetypes'")
+        .get() as { sql: string } | undefined
+
       // UNIQUE(name, class_name)がない場合はマイグレーション
       if (hasUniqueConstraint && !hasUniqueConstraint.sql.includes('UNIQUE(name, class_name)')) {
-        console.log('Migrating archetypes table to add UNIQUE constraint on (name, class_name)...');
-        
+        console.log('Migrating archetypes table to add UNIQUE constraint on (name, class_name)...')
+
         db.exec(`
           -- 一時テーブルを作成
           CREATE TABLE archetypes_new (
@@ -91,31 +91,31 @@ function initializeDatabase() {
           
           -- 新しいテーブルをリネーム
           ALTER TABLE archetypes_new RENAME TO archetypes;
-        `);
-        
-        console.log('Archetypes table migration completed.');
+        `)
+
+        console.log('Archetypes table migration completed.')
       }
     } catch (migrationError) {
-      console.log('Archetypes table already has correct structure or migration not needed.');
+      console.log('Archetypes table already has correct structure or migration not needed.')
     }
-    
+
     // Migrate old class names to 'ナイトメア'
     db.exec(`
       UPDATE matches
       SET player_class = 'ナイトメア'
       WHERE player_class IN ('ネクロマンサー', 'ヴァンパイア');
-    `);
+    `)
     db.exec(`
       UPDATE matches
       SET opponent_class = 'ナイトメア'
       WHERE opponent_class IN ('ネクロマンサー', 'ヴァンパイア');
-    `);
+    `)
     db.exec(`
       UPDATE archetypes
       SET class_name = 'ナイトメア'
       WHERE class_name IN ('ネクロマンサー', 'ヴァンパイア');
-    `);
-    console.log('Class names migrated to ナイトメア.');
+    `)
+    console.log('Class names migrated to ナイトメア.')
     console.log('Archetypes table checked/created with better-sqlite3.')
   } catch (error) {
     console.error('Failed to initialize database with better-sqlite3:', error)
@@ -128,6 +128,7 @@ function createWindow(): void {
     width: 1640,
     height: 950,
     show: false,
+    title: 'SHADVA LOG',
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -175,11 +176,21 @@ app.whenReady().then(() => {
           match_date, player_rank, player_group, player_cr, player_mp, player_class, player_archetype,
           opponent_class, opponent_archetype, is_first, result, notes
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
+      `)
       const info = stmt.run(
-        match.match_date, match.player_rank, match.player_group, match.player_cr, match.player_mp, match.player_class, match.player_archetype,
-        match.opponent_class, match.opponent_archetype, match.is_first, match.result, match.notes
-      );
+        match.match_date,
+        match.player_rank,
+        match.player_group,
+        match.player_cr,
+        match.player_mp,
+        match.player_class,
+        match.player_archetype,
+        match.opponent_class,
+        match.opponent_archetype,
+        match.is_first,
+        match.result,
+        match.notes
+      )
       return { success: true, lastInsertRowid: info.lastInsertRowid }
     } catch (error: any) {
       console.error('Failed to add match:', error)
@@ -207,110 +218,129 @@ app.whenReady().then(() => {
     }
   })
 
-  ipcMain.handle('db:get-latest-match-by-rank-tab', async (_event, rankTab: 'Beginner-AA' | 'Master' | 'Grand Master') => {
-    try {
-      let rankFilter = '';
-      if (rankTab === 'Beginner-AA') {
-        rankFilter = "player_rank IN ('Beginner', 'D', 'C', 'B', 'A', 'AA')";
-      } else if (rankTab === 'Master') {
-        rankFilter = "player_rank = 'Master'";
-      } else if (rankTab === 'Grand Master') {
-        rankFilter = "player_rank = 'Grand Master'";
-      }
+  ipcMain.handle(
+    'db:get-latest-match-by-rank-tab',
+    async (_event, rankTab: 'Beginner-AA' | 'Master' | 'Grand Master') => {
+      try {
+        let rankFilter = ''
+        if (rankTab === 'Beginner-AA') {
+          rankFilter = "player_rank IN ('Beginner', 'D', 'C', 'B', 'A', 'AA')"
+        } else if (rankTab === 'Master') {
+          rankFilter = "player_rank = 'Master'"
+        } else if (rankTab === 'Grand Master') {
+          rankFilter = "player_rank = 'Grand Master'"
+        }
 
-      let latestMatch;
-      if (rankFilter) {
-        latestMatch = db.prepare(`SELECT * FROM matches WHERE ${rankFilter} ORDER BY match_date DESC LIMIT 1`).get();
-      } else {
-        latestMatch = db.prepare('SELECT * FROM matches ORDER BY match_date DESC LIMIT 1').get();
+        let latestMatch
+        if (rankFilter) {
+          latestMatch = db
+            .prepare(`SELECT * FROM matches WHERE ${rankFilter} ORDER BY match_date DESC LIMIT 1`)
+            .get()
+        } else {
+          latestMatch = db.prepare('SELECT * FROM matches ORDER BY match_date DESC LIMIT 1').get()
+        }
+
+        return { success: true, data: latestMatch }
+      } catch (error: any) {
+        console.error('Failed to get latest match by rank tab:', error)
+        return { success: false, error: error.message }
       }
-      
-      return { success: true, data: latestMatch };
-    } catch (error: any) {
-      console.error('Failed to get latest match by rank tab:', error);
-      return { success: false, error: error.message };
     }
-  });
+  )
 
   ipcMain.handle('db:get-latest-match', async (_event) => {
     try {
-      const latestMatch = db.prepare('SELECT * FROM matches ORDER BY match_date DESC LIMIT 1').get();
-      return { success: true, data: latestMatch };
+      const latestMatch = db.prepare('SELECT * FROM matches ORDER BY match_date DESC LIMIT 1').get()
+      return { success: true, data: latestMatch }
     } catch (error: any) {
-      console.error('Failed to get latest match:', error);
-      return { success: false, error: error.message };
+      console.error('Failed to get latest match:', error)
+      return { success: false, error: error.message }
     }
-  });
+  })
 
   ipcMain.handle('db:get-latest-cr-for-class', async (_event, className: string, rank: string) => {
     try {
-      const latestCr = db.prepare(
-        'SELECT player_cr FROM matches WHERE player_class = ? AND player_rank = ? AND player_cr IS NOT NULL ORDER BY match_date DESC LIMIT 1'
-      ).get(className, rank);
-      return { success: true, data: latestCr ? latestCr.player_cr : undefined };
+      const latestCr = db
+        .prepare(
+          'SELECT player_cr FROM matches WHERE player_class = ? AND player_rank = ? AND player_cr IS NOT NULL ORDER BY match_date DESC LIMIT 1'
+        )
+        .get(className, rank)
+      return { success: true, data: latestCr ? latestCr.player_cr : undefined }
     } catch (error: any) {
-      console.error('Failed to get latest CR for class:', error);
-      return { success: false, error: error.message };
+      console.error('Failed to get latest CR for class:', error)
+      return { success: false, error: error.message }
     }
-  });
+  })
 
   ipcMain.handle('db:add-archetype', async (_event, archetype) => {
     try {
       // 既存のアーキタイプをチェック
-      const existing = db.prepare('SELECT id FROM archetypes WHERE name = ? AND class_name = ?')
-        .get(archetype.name, archetype.class_name);
-      
+      const existing = db
+        .prepare('SELECT id FROM archetypes WHERE name = ? AND class_name = ?')
+        .get(archetype.name, archetype.class_name)
+
       if (existing) {
         // 既に存在する場合は既存のIDを返す
-        return { success: true, lastInsertRowid: (existing as any).id, alreadyExists: true };
+        return { success: true, lastInsertRowid: (existing as any).id, alreadyExists: true }
       }
-      
+
       // 新規追加
-      const stmt = db.prepare('INSERT INTO archetypes (name, class_name, default_cr) VALUES (?, ?, ?)');
-      const info = stmt.run(archetype.name, archetype.class_name, archetype.default_cr || 0);
-      return { success: true, lastInsertRowid: info.lastInsertRowid };
+      const stmt = db.prepare(
+        'INSERT INTO archetypes (name, class_name, default_cr) VALUES (?, ?, ?)'
+      )
+      const info = stmt.run(archetype.name, archetype.class_name, archetype.default_cr || 0)
+      return { success: true, lastInsertRowid: info.lastInsertRowid }
     } catch (error: any) {
-      console.error('Failed to add archetype:', error);
-      return { success: false, error: error.message };
+      console.error('Failed to add archetype:', error)
+      return { success: false, error: error.message }
     }
-  });
+  })
 
   ipcMain.handle('db:get-archetypes', async (_event, className?: string) => {
     try {
-      let archetypes;
+      let archetypes
       if (className) {
-        archetypes = db.prepare('SELECT * FROM archetypes WHERE class_name = ? ORDER BY name').all(className);
+        archetypes = db
+          .prepare('SELECT * FROM archetypes WHERE class_name = ? ORDER BY name')
+          .all(className)
       } else {
-        archetypes = db.prepare('SELECT * FROM archetypes ORDER BY name').all();
+        archetypes = db.prepare('SELECT * FROM archetypes ORDER BY name').all()
       }
-      return { success: true, data: archetypes };
+      return { success: true, data: archetypes }
     } catch (error: any) {
-      console.error('Failed to get archetypes:', error);
-      return { success: false, error: error.message };
+      console.error('Failed to get archetypes:', error)
+      return { success: false, error: error.message }
     }
-  });
+  })
 
   ipcMain.handle('db:update-archetype', async (_event, archetype) => {
     try {
-      const stmt = db.prepare('UPDATE archetypes SET name = ?, class_name = ?, default_cr = ? WHERE id = ?');
-      const info = stmt.run(archetype.name, archetype.class_name, archetype.default_cr || 0, archetype.id);
-      return { success: true, changes: info.changes };
+      const stmt = db.prepare(
+        'UPDATE archetypes SET name = ?, class_name = ?, default_cr = ? WHERE id = ?'
+      )
+      const info = stmt.run(
+        archetype.name,
+        archetype.class_name,
+        archetype.default_cr || 0,
+        archetype.id
+      )
+      return { success: true, changes: info.changes }
     } catch (error: any) {
-      console.error('Failed to update archetype:', error);
-      return { success: false, error: error.message };
+      console.error('Failed to update archetype:', error)
+      return { success: false, error: error.message }
     }
-  });
+  })
 
   ipcMain.handle('db:delete-archetype', async (_event, id) => {
     try {
-      const stmt = db.prepare('DELETE FROM archetypes WHERE id = ?');
-      const info = stmt.run(id);
-      return { success: true, changes: info.changes };
+      const stmt = db.prepare('DELETE FROM archetypes WHERE id = ?')
+      const info = stmt.run(id)
+      return { success: true, changes: info.changes }
     } catch (error: any) {
-      console.error('Failed to delete archetype:', error);
-      return { success: false, error: error.message };
+      console.error('Failed to delete archetype:', error)
+      return { success: false, error: error.message }
     }
-  });
+  })
 
   createWindow()
 

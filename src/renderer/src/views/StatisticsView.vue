@@ -1,41 +1,6 @@
 <template>
-  <v-app>
-    <!-- ナビゲーションバー -->
-    <v-app-bar elevation="0" class="app-bar">
-      <v-app-bar-title class="ml-4">
-        <span class="logo-text-supicha">SHADVA</span>
-        <span class="logo-text-log">LOG</span>
-      </v-app-bar-title>
-
-      <v-spacer />
-
-      <v-btn
-        prepend-icon="mdi-view-dashboard"
-        variant="text"
-        @click="$router.push('/')"
-      >
-        ダッシュボード
-      </v-btn>
-      <v-btn
-        prepend-icon="mdi-chart-box"
-        variant="flat"
-        color="primary"
-      >
-        統計
-      </v-btn>
-      <v-btn
-        prepend-icon="mdi-shape"
-        variant="text"
-        @click="$router.push('/archetypes')"
-      >
-        アーキタイプ管理
-      </v-btn>
-    </v-app-bar>
-
-    <!-- メインコンテンツ -->
-    <v-main class="main-content">
-      <v-container fluid class="pa-6">
-        <h1 class="text-h4 mb-6" style="color: #212121;">
+  <v-container fluid class="pa-6">
+        <h1 class="text-h4 mb-6" style="color: #212121">
           <v-icon class="mr-2" color="primary">mdi-chart-box</v-icon>
           統計情報
         </h1>
@@ -294,7 +259,7 @@
                   v-if="classWinRateChartData.labels.length > 0"
                   :data="classWinRateChartData"
                   :options="classWinRateChartOptions"
-                  style="height: 300px;"
+                  style="height: 300px"
                 />
                 <div v-else class="no-data-placeholder py-8">
                   <v-icon size="48" color="grey">mdi-chart-bar</v-icon>
@@ -317,7 +282,7 @@
                   v-if="opponentArchetypeMatchCountChartData.labels.length > 0"
                   :data="opponentArchetypeMatchCountChartData"
                   :options="opponentArchetypeMatchCountChartOptions"
-                  style="height: 300px;"
+                  style="height: 300px"
                 />
                 <div v-else class="no-data-placeholder py-8">
                   <v-icon size="48" color="grey">mdi-chart-pie</v-icon>
@@ -355,11 +320,11 @@
                         >
                           <template v-if="matchupMatrix[pClass][oClass].total_matches > 0">
                             {{ matchupMatrix[pClass][oClass].win_rate.toFixed(1) }}%
-                            <div class="text-caption text-grey-darken-1">({{ matchupMatrix[pClass][oClass].total_matches }}戦)</div>
+                            <div class="text-caption text-grey-darken-1">
+                              ({{ matchupMatrix[pClass][oClass].total_matches }}戦)
+                            </div>
                           </template>
-                          <template v-else>
-                            -
-                          </template>
+                          <template v-else> - </template>
                         </td>
                       </tr>
                     </tbody>
@@ -439,9 +404,7 @@
             </v-card>
           </v-col>
         </v-row>
-      </v-container>
-    </v-main>
-  </v-app>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -450,10 +413,18 @@ import { useApi } from '../services/api'
 import type { Match } from '@/types'
 import StatCard from '../components/duel/StatCard.vue'
 import { Bar, Pie } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  ArcElement
+} from 'chart.js'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement)
-
 
 const api = useApi()
 
@@ -540,9 +511,15 @@ const timeStatsHeaders = [
 ]
 
 const classWinRateChartData = computed(() => {
-  const labels = classStats.value.map(s => s.class_name)
-  const data = classStats.value.map(s => s.win_rate)
-  const backgroundColors = data.map(rate => getWinRateColor(rate) === 'success' ? '#4CAF50' : getWinRateColor(rate) === 'warning' ? '#FF9800' : '#f44336')
+  const labels = classStats.value.map((s) => s.class_name)
+  const data = classStats.value.map((s) => s.win_rate)
+  const backgroundColors = data.map((rate) =>
+    getWinRateColor(rate) === 'success'
+      ? '#4CAF50'
+      : getWinRateColor(rate) === 'warning'
+        ? '#FF9800'
+        : '#f44336'
+  )
 
   return {
     labels: labels,
@@ -600,11 +577,19 @@ const classWinRateChartOptions = {
 }
 
 const opponentArchetypeMatchCountChartData = computed(() => {
-  const labels = opponentArchetypeStats.value.map(s => s.archetype)
-  const data = opponentArchetypeStats.value.map(s => s.total)
+  const labels = opponentArchetypeStats.value.map((s) => s.archetype)
+  const data = opponentArchetypeStats.value.map((s) => s.total)
   const backgroundColors = [
-    '#2196F3', '#FF9800', '#4CAF50', '#E91E63', '#9C27B0',
-    '#00BCD4', '#FFEB3B', '#795548', '#607D8B', '#F44336'
+    '#2196F3',
+    '#FF9800',
+    '#4CAF50',
+    '#E91E63',
+    '#9C27B0',
+    '#00BCD4',
+    '#FFEB3B',
+    '#795548',
+    '#607D8B',
+    '#F44336'
   ] // Example colors
 
   return {
@@ -647,7 +632,7 @@ const getWinRateColor = (winRate: number) => {
 
 const allUniqueClasses = computed(() => {
   const classes = new Set<string>()
-  matchupData.value.forEach(item => {
+  matchupData.value.forEach((item) => {
     classes.add(item.player_class)
     classes.add(item.opponent_class)
   })
@@ -655,17 +640,19 @@ const allUniqueClasses = computed(() => {
 })
 
 const matchupMatrix = computed(() => {
-  const matrix: { [playerClass: string]: { [opponentClass: string]: { total_matches: number; win_rate: number } } } = {}
+  const matrix: {
+    [playerClass: string]: { [opponentClass: string]: { total_matches: number; win_rate: number } }
+  } = {}
   const classes = allUniqueClasses.value
 
-  classes.forEach(pClass => {
+  classes.forEach((pClass) => {
     matrix[pClass] = {}
-    classes.forEach(oClass => {
+    classes.forEach((oClass) => {
       matrix[pClass][oClass] = { total_matches: 0, win_rate: 0 } // Default to 0
     })
   })
 
-  matchupData.value.forEach(item => {
+  matchupData.value.forEach((item) => {
     if (matrix[item.player_class] && matrix[item.player_class][item.opponent_class]) {
       matrix[item.player_class][item.opponent_class] = {
         total_matches: item.total_matches,
@@ -684,11 +671,11 @@ const fetchStatistics = async () => {
       allMatches.value = result.data
 
       // フィルタリング
-      const filtered = allMatches.value.filter(match => {
+      const filtered = allMatches.value.filter((match) => {
         const matchDate = new Date(match.match_date)
         const yearMatch = matchDate.getFullYear() === selectedYear.value
         const monthMatch = matchDate.getMonth() + 1 === selectedMonth.value
-        
+
         let rankMatch = false
         if (selectedRankTab.value === 'Beginner-AA') {
           rankMatch = ['Beginner', 'D', 'C', 'B', 'A', 'AA'].includes(match.player_rank)
@@ -697,7 +684,7 @@ const fetchStatistics = async () => {
         } else if (selectedRankTab.value === 'Grand Master') {
           rankMatch = match.player_rank === 'Grand Master'
         }
-        
+
         return yearMatch && monthMatch && rankMatch
       })
 
@@ -712,13 +699,13 @@ const fetchStatistics = async () => {
 
 const calculateStats = (matches: Match[]) => {
   const total = matches.length
-  const wins = matches.filter(m => m.result === 1).length
-  
-  const firstMatches = matches.filter(m => m.is_first === 1)
-  const firstWins = firstMatches.filter(m => m.result === 1).length
-  
-  const secondMatches = matches.filter(m => m.is_first === 0)
-  const secondWins = secondMatches.filter(m => m.result === 1).length
+  const wins = matches.filter((m) => m.result === 1).length
+
+  const firstMatches = matches.filter((m) => m.is_first === 1)
+  const firstWins = firstMatches.filter((m) => m.result === 1).length
+
+  const secondMatches = matches.filter((m) => m.is_first === 0)
+  const secondWins = secondMatches.filter((m) => m.result === 1).length
 
   stats.value = {
     totalMatches: total,
@@ -729,7 +716,7 @@ const calculateStats = (matches: Match[]) => {
 
   // 使用クラス別統計
   const classCounts: any = {}
-  matches.forEach(m => {
+  matches.forEach((m) => {
     if (!classCounts[m.player_class]) {
       classCounts[m.player_class] = { wins: 0, losses: 0, total: 0 }
     }
@@ -737,18 +724,20 @@ const calculateStats = (matches: Match[]) => {
     if (m.result === 1) classCounts[m.player_class].wins++
     else classCounts[m.player_class].losses++
   })
-  
-  classStats.value = Object.entries(classCounts).map(([name, data]: [string, any]) => ({
-    class_name: name,
-    total: data.total,
-    wins: data.wins,
-    losses: data.losses,
-    win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
-  })).sort((a, b) => b.total - a.total)
+
+  classStats.value = Object.entries(classCounts)
+    .map(([name, data]: [string, any]) => ({
+      class_name: name,
+      total: data.total,
+      wins: data.wins,
+      losses: data.losses,
+      win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
+    }))
+    .sort((a, b) => b.total - a.total)
 
   // 対戦相手クラス別統計
   const opponentCounts: any = {}
-  matches.forEach(m => {
+  matches.forEach((m) => {
     if (!opponentCounts[m.opponent_class]) {
       opponentCounts[m.opponent_class] = { wins: 0, losses: 0, total: 0 }
     }
@@ -756,71 +745,94 @@ const calculateStats = (matches: Match[]) => {
     if (m.result === 1) opponentCounts[m.opponent_class].wins++
     else opponentCounts[m.opponent_class].losses++
   })
-  
-  opponentStats.value = Object.entries(opponentCounts).map(([name, data]: [string, any]) => ({
-    class_name: name,
-    total: data.total,
-    wins: data.wins,
-    losses: data.losses,
-    win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
-  })).sort((a, b) => b.total - a.total)
+
+  opponentStats.value = Object.entries(opponentCounts)
+    .map(([name, data]: [string, any]) => ({
+      class_name: name,
+      total: data.total,
+      wins: data.wins,
+      losses: data.losses,
+      win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
+    }))
+    .sort((a, b) => b.total - a.total)
 
   // アーキタイプ別統計
   const archetypeCounts: any = {}
-  matches.forEach(m => {
+  matches.forEach((m) => {
     if (m.player_archetype) {
       const key = `${m.player_class}|${m.player_archetype}`
       if (!archetypeCounts[key]) {
-        archetypeCounts[key] = { class_name: m.player_class, archetype: m.player_archetype, wins: 0, total: 0 }
+        archetypeCounts[key] = {
+          class_name: m.player_class,
+          archetype: m.player_archetype,
+          wins: 0,
+          total: 0
+        }
       }
       archetypeCounts[key].total++
       if (m.result === 1) archetypeCounts[key].wins++
     }
   })
-  
-  archetypeStats.value = Object.values(archetypeCounts).map((data: any) => ({
-    ...data,
-    win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
-  })).sort((a: any, b: any) => b.total - a.total)
+
+  archetypeStats.value = Object.values(archetypeCounts)
+    .map((data: any) => ({
+      ...data,
+      win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
+    }))
+    .sort((a: any, b: any) => b.total - a.total)
 
   // 対戦相手アーキタイプ別統計
   const opponentArchetypeCounts: any = {}
-  matches.forEach(m => {
+  matches.forEach((m) => {
     const archetype = m.opponent_archetype || 'アーキタイプなし'
     const key = `${m.opponent_class}|${archetype}`
     if (!opponentArchetypeCounts[key]) {
-      opponentArchetypeCounts[key] = { class_name: m.opponent_class, archetype: archetype, wins: 0, total: 0 }
+      opponentArchetypeCounts[key] = {
+        class_name: m.opponent_class,
+        archetype: archetype,
+        wins: 0,
+        total: 0
+      }
     }
     opponentArchetypeCounts[key].total++
     if (m.result === 1) opponentArchetypeCounts[key].wins++
   })
-  
-  opponentArchetypeStats.value = Object.values(opponentArchetypeCounts).map((data: any) => ({
-    ...data,
-    win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
-  })).sort((a: any, b: any) => b.total - a.total)
+
+  opponentArchetypeStats.value = Object.values(opponentArchetypeCounts)
+    .map((data: any) => ({
+      ...data,
+      win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
+    }))
+    .sort((a: any, b: any) => b.total - a.total)
 
   // クラス相性マトリックス
   const matchups: any = {}
-  matches.forEach(m => {
+  matches.forEach((m) => {
     const key = `${m.player_class}|${m.opponent_class}`
     if (!matchups[key]) {
-      matchups[key] = { player_class: m.player_class, opponent_class: m.opponent_class, wins: 0, total: 0 }
+      matchups[key] = {
+        player_class: m.player_class,
+        opponent_class: m.opponent_class,
+        wins: 0,
+        total: 0
+      }
     }
     matchups[key].total++
     if (m.result === 1) matchups[key].wins++
   })
-  
-  matchupData.value = Object.values(matchups).map((data: any) => ({
-    ...data,
-    total_matches: data.total,
-    win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
-  })).sort((a: any, b: any) => b.total - a.total)
+
+  matchupData.value = Object.values(matchups)
+    .map((data: any) => ({
+      ...data,
+      total_matches: data.total,
+      win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
+    }))
+    .sort((a: any, b: any) => b.total - a.total)
 
   // グループ別統計
   if (selectedRankTab.value === 'Beginner-AA') {
     const groupCounts: any = {}
-    matches.forEach(m => {
+    matches.forEach((m) => {
       if (m.player_group) {
         if (!groupCounts[m.player_group]) {
           groupCounts[m.player_group] = { wins: 0, losses: 0, total: 0 }
@@ -830,27 +842,29 @@ const calculateStats = (matches: Match[]) => {
         else groupCounts[m.player_group].losses++
       }
     })
-    
-    groupStats.value = Object.entries(groupCounts).map(([name, data]: [string, any]) => ({
-      group_name: name,
-      total: data.total,
-      wins: data.wins,
-      losses: data.losses,
-      win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
-    })).sort((a, b) => b.total - a.total)
+
+    groupStats.value = Object.entries(groupCounts)
+      .map(([name, data]: [string, any]) => ({
+        group_name: name,
+        total: data.total,
+        wins: data.wins,
+        losses: data.losses,
+        win_rate: data.total > 0 ? (data.wins / data.total) * 100 : 0
+      }))
+      .sort((a, b) => b.total - a.total)
   }
 
   // 時間帯別統計
   const timeCounts: any = {}
   const timeRanges = ['0-5時', '6-11時', '12-17時', '18-23時']
-  matches.forEach(m => {
+  matches.forEach((m) => {
     const hour = new Date(m.match_date).getHours()
     let range = ''
     if (hour >= 0 && hour < 6) range = '0-5時'
     else if (hour >= 6 && hour < 12) range = '6-11時'
     else if (hour >= 12 && hour < 18) range = '12-17時'
     else range = '18-23時'
-    
+
     if (!timeCounts[range]) {
       timeCounts[range] = { wins: 0, losses: 0, total: 0 }
     }
@@ -858,8 +872,8 @@ const calculateStats = (matches: Match[]) => {
     if (m.result === 1) timeCounts[range].wins++
     else timeCounts[range].losses++
   })
-  
-  timeStats.value = timeRanges.map(range => {
+
+  timeStats.value = timeRanges.map((range) => {
     const data = timeCounts[range] || { wins: 0, losses: 0, total: 0 }
     return {
       time_range: range,
@@ -890,7 +904,7 @@ onMounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
       radial-gradient(circle at 20% 30%, rgba(33, 150, 243, 0.03) 0%, transparent 50%),
       radial-gradient(circle at 80% 70%, rgba(158, 158, 158, 0.02) 0%, transparent 50%);
     pointer-events: none;
@@ -910,10 +924,10 @@ onMounted(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.logo-text-supicha {
+.logo-text-shadva {
   font-weight: 900;
   font-size: 1.25rem;
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -923,15 +937,13 @@ onMounted(() => {
 .logo-text-log {
   font-weight: 900;
   font-size: 1.25rem;
-  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: 0.5px;
   margin-left: 2px;
 }
-
-
 
 .stats-card {
   background: rgba(255, 255, 255, 0.98) !important;

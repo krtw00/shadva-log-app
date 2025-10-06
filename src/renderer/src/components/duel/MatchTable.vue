@@ -23,29 +23,21 @@
 
     <!-- 自分のクラス/アーキタイプカラム -->
     <template #item.player_info="{ item }">
-      <v-chip
-        color="primary"
-        variant="tonal"
-      >
+      <v-chip color="primary" variant="tonal">
         {{ item.player_class }} ({{ item.player_archetype || '-' }})
       </v-chip>
     </template>
 
     <!-- 相手のクラス/アーキタイプカラム -->
     <template #item.opponent_info="{ item }">
-      <v-chip
-        color="secondary"
-        variant="tonal"
-      >
+      <v-chip color="secondary" variant="tonal">
         {{ item.opponent_class }} ({{ item.opponent_archetype || '-' }})
       </v-chip>
     </template>
 
     <!-- 先手/後手カラム -->
     <template #item.is_first_display="{ item }">
-      <v-icon
-        :color="item.is_first === 1 ? 'info' : 'purple'"
-      >
+      <v-icon :color="item.is_first === 1 ? 'info' : 'purple'">
         {{ item.is_first === 1 ? 'mdi-numeric-1-circle' : 'mdi-numeric-2-circle' }}
       </v-icon>
       {{ item.is_first === 1 ? '先手' : '後手' }}
@@ -53,12 +45,7 @@
 
     <!-- ランクカラム -->
     <template #item.player_rank="{ item }">
-      <v-chip
-        v-if="item.player_rank"
-        color="warning"
-        variant="outlined"
-        size="small"
-      >
+      <v-chip v-if="item.player_rank" color="warning" variant="outlined" size="small">
         <v-icon start size="small">mdi-crown</v-icon>
         {{ item.player_rank }}
       </v-chip>
@@ -67,12 +54,7 @@
 
     <!-- グループカラム (Beginner-AAのみ) -->
     <template #item.player_group="{ item }">
-      <v-chip
-        v-if="item.player_group"
-        color="purple"
-        variant="outlined"
-        size="small"
-      >
+      <v-chip v-if="item.player_group" color="purple" variant="outlined" size="small">
         <v-icon start size="small">mdi-shape</v-icon>
         {{ item.player_group }}
       </v-chip>
@@ -120,17 +102,8 @@
 
     <!-- アクションカラム -->
     <template #item.actions="{ item }">
-      <v-btn
-        icon="mdi-pencil"
-        variant="text"
-        @click="$emit('edit', item)"
-      />
-      <v-btn
-        icon="mdi-delete"
-        variant="text"
-        color="error"
-        @click="$emit('delete', item.id)"
-      />
+      <v-btn icon="mdi-pencil" variant="text" @click="$emit('edit', item)" />
+      <v-btn icon="mdi-delete" variant="text" color="error" @click="$emit('delete', item.id)" />
     </template>
 
     <!-- ローディング -->
