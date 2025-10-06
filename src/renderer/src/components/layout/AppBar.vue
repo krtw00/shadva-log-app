@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { AppConfig } from '../config/app-config'
+import { AppConfig } from '@/config/app-config'
 
 defineProps<{
   currentView: 'dashboard' | 'decks' | 'statistics' | 'archetypemanagement'

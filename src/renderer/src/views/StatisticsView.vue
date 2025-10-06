@@ -637,7 +637,7 @@ const opponentArchetypeMatchCountChartOptions = {
       color: '#212121'
     }
   }
-}
+} as const
 
 const getWinRateColor = (winRate: number) => {
   if (winRate >= 60) return 'success'

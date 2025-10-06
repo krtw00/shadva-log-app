@@ -323,7 +323,7 @@ watch(() => props.modelValue, async (newValue) => {
       form.value = defaultForm()
 
       // 現在のランクタブに応じた最新の試合データを取得してフォームに設定
-      let latestMatch = null
+      let latestMatch: Match | null = null
       try {
         const latestMatchResult = await api.getLatestMatchByRankTab(props.currentRankTab)
         if (latestMatchResult.success && latestMatchResult.data) {
