@@ -16,7 +16,7 @@ asarUnpack:
   - '**/*.node'
 win:
   executableName: SHADVALOG
-  icon: null
+  icon: ${env.APP_ICON_PATH}
   target:
     - target: nsis
       arch:

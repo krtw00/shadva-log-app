@@ -3,8 +3,8 @@
     <!-- ナビゲーションバー -->
     <v-app-bar elevation="0" class="app-bar">
       <v-app-bar-title class="ml-4">
-        <span class="logo-text-supicha">SHADVA</span>
-        <span class="logo-text-log">LOG</span>
+        <span class="logo-text-supicha">{{ AppConfig.appLogoTextSupicha }}</span>
+        <span class="logo-text-log">{{ AppConfig.appLogoTextLog }}</span>
       </v-app-bar-title>
 
       <v-spacer />
@@ -119,43 +119,51 @@
 
         <!-- マッチテーブル -->
         <v-card class="match-card">
-          <v-card-title class="d-flex align-center pa-4">
-            <v-icon class="mr-2" color="primary">mdi-table</v-icon>
-            <span class="text-h6">対戦履歴</span>
-            <v-spacer />
-            <v-btn
-              color="info"
-              prepend-icon="mdi-download"
-              @click="exportCSV"
-              class="mr-2"
-              variant="outlined"
-            >
-              CSVエクスポート
-            </v-btn>
-            <v-btn
-              color="warning"
-              prepend-icon="mdi-upload"
-              @click="triggerImportCSV"
-              class="mr-2"
-              variant="outlined"
-            >
-              CSVインポート
-            </v-btn>
-            <input
-              ref="fileInput"
-              type="file"
-              accept=".csv"
-              style="display: none"
-              @change="importCSV"
-            />
-            <v-btn
-              color="primary"
-              prepend-icon="mdi-plus"
-              @click="openMatchDialog"
-              class="add-btn"
-            >
-              対戦記録を追加
-            </v-btn>
+          <v-card-title class="pa-4">
+            <v-row align="center" class="ma-0 pa-0">
+              <v-col cols="12" md="auto" class="d-flex align-center pa-0">
+                <v-icon class="mr-2" color="primary">mdi-table</v-icon>
+                <span class="text-h6">対戦履歴</span>
+              </v-col>
+              <v-col cols="12" md="auto" class="ml-auto d-flex justify-end pa-0">
+                <v-btn
+                  color="info"
+                  prepend-icon="mdi-download"
+                  @click="exportCSV"
+                  class="mr-2"
+                  variant="outlined"
+                  size="small"
+                >
+                  CSVエクスポート
+                </v-btn>
+                <v-btn
+                  color="warning"
+                  prepend-icon="mdi-upload"
+                  @click="triggerImportCSV"
+                  class="mr-2"
+                  variant="outlined"
+                  size="small"
+                >
+                  CSVインポート
+                </v-btn>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept=".csv"
+                  style="display: none"
+                  @change="importCSV"
+                />
+                <v-btn
+                  color="primary"
+                  prepend-icon="mdi-plus"
+                  @click="openMatchDialog"
+                  class="add-btn"
+                  size="small"
+                >
+                  対戦記録を追加
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-card-title>
 
           <v-divider />
@@ -190,6 +198,7 @@ import StatCard from '../components/duel/StatCard.vue'
 import MatchTable from '../components/duel/MatchTable.vue'
 import MatchFormDialog from '../components/duel/MatchFormDialog.vue'
 import { useNotificationStore } from '../stores/notification'
+import { AppConfig } from '../config/app-config'
 
 
 const api = useApi()
