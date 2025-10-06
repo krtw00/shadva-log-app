@@ -1,33 +1,36 @@
-# SHADVALOG
+# SHADVA LOG
 
 Shadowverse対戦記録管理アプリケーション
 
 ## 概要
 
-SHADVALOGは、Shadowverseの対戦履歴を記録・管理するためのElectronアプリケーションです。
+SHADVA LOGは、Shadowverseのランクマッチやフリーマッチの対戦結果を詳細に記録し、クラス別・アーキタイプ別の勝率などを分析できるデスクトップアプリケーションです。
 
 ## 主な機能
 
-- 📊 対戦記録の登録・編集・削除
-- 📈 詳細な統計情報の表示
-- 🎴 デッキアーキタイプの管理
-- 💾 CSVインポート/エクスポート
-- 🔍 ランク別フィルタリング（Beginner-AA / Master / Grand Master）
+- 📊 **対戦記録の管理:** 対戦日、ランク、使用クラス/アーキタイプ、対戦相手、勝敗などの詳細な情報を記録・編集・削除できます。
+- 📈 **統計情報の可視化:** 記録したデータをもとに、クラス別・アーキタイプ別の勝率や使用率をグラフで分かりやすく表示します。
+- 🎴 **アーキタイプの管理:** 独自のアーキタイプを登録・編集・削除できます。
+- 🔍 **ランク別フィルタリング:** ランク帯（Beginner-AA / Master / Grand Master）でデータを絞り込んで表示できます。
+- ✨ **自動更新:** アプリケーションの新しいバージョンがリリースされた際に、自動で更新する機能を備えています。
 
 ## 技術スタック
 
 - **Electron** - デスクトップアプリケーションフレームワーク
+- **Electron-Vite** - 高速なビルドと開発環境
 - **Vue 3** - UIフレームワーク
 - **TypeScript** - 型安全な開発
 - **Vuetify** - マテリアルデザインコンポーネント
+- **Pinia** - 状態管理ライブラリ
+- **Vue Router** - ルーティング
 - **Better-SQLite3** - ローカルデータベース
-- **Vite** - 高速ビルドツール
+- **Chart.js** - グラフ描画ライブラリ
 
 ## 開発環境のセットアップ
 
 ### 必要要件
 
-- Node.js 16以上
+- Node.js 18以上
 - npm または yarn
 
 ### インストール
@@ -38,20 +41,21 @@ npm install
 
 # 開発モードで起動
 npm run dev
-
-# 本番ビルド
-npm run build:win  # Windows
-npm run build:mac  # macOS
-npm run build:linux  # Linux
 ```
 
 ## ビルド
 
+各種OS向けのインストーラーをビルドします。
+
 ```bash
-# Windowsインストーラーのビルド
+# Windows向けビルド
 npm run build:win
 
-# ポータブル版も同時に生成されます
+# macOS向けビルド
+npm run build:mac
+
+# Linux向けビルド
+npm run build:linux
 ```
 
 ビルドされたファイルは `dist` ディレクトリに出力されます。
