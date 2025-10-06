@@ -154,7 +154,6 @@ import StatCard from '../components/duel/StatCard.vue'
 import MatchTable from '../components/duel/MatchTable.vue'
 import MatchFormDialog from '../components/duel/MatchFormDialog.vue'
 import { useNotificationStore } from '../stores/notification'
-import { AppConfig } from '../config/app-config'
 
 const api = useApi()
 const notificationStore = useNotificationStore()
